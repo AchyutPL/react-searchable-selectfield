@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useRef, useState } from 'react';
 import useHandleClickOutside from '../hooks/useHandleClickOutSide';
+import { useDebounce } from '../hooks/userDebounce';
 import '../index.css';
 import IProps from '../types';
 
@@ -11,7 +12,35 @@ const SelectField = (props: IProps) => {
 
     const [filteredOptions, setFilteredOptions] = useState<IProps['options']>(options);
     const [toggleOptions, setToggleOptions] = useState(false);
-    const [fieldValue, setFieldValue] = useState('')
+    const [fieldValue, setFieldValue] = useState('');
+    const [cursor, setCursor] = useState(0);
+    const [isKeyPressing, setIsKeypressing] = useState(false);
+
+    useEffect(() => {
+        setFilteredOptions(options);
+    }, [options.length]);
+
+    const debouncedText = useDebounce(fieldValue, 100);
+
+    useEffect(() => {
+        if (!debouncedText) {
+            // setFilteredOptions([]);
+            setIsKeypressing(false);
+            return;
+        }
+        if (!isKeyPressing) {
+            const filterDatas = options.filter((item: { label: string }) =>
+                (item.label.toLocaleLowerCase()?.includes(debouncedText?.toLowerCase())));
+            setFilteredOptions(filterDatas);
+
+        }
+    }, [debouncedText]);
+
+    useEffect(() => {
+        if (fieldValue) {
+            onChange(options.filter(item => item.value === fieldValue)[0])
+        }
+    }, [fieldValue])
 
     useEffect(() => {
         if (defaultValue) {
@@ -20,19 +49,29 @@ const SelectField = (props: IProps) => {
         }
     }, []);
 
+    function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+        if (e.key === 'ArrowUp') {
+            setCursor(prevState => (prevState > 0 ? prevState - 1 : filteredOptions.length - 1));
+            setIsKeypressing(true);
+        } else if (e.key === 'ArrowDown') {
+            setCursor(prevState => (prevState === filteredOptions.length - 1 ? 0 : prevState + 1));
+            setIsKeypressing(true);
+        }
+
+        if (e.key === 'Enter') {
+            onChange(options.filter(item => item.value === options[cursor].value)[0]);
+            setFieldValue(options.filter(item => item.value === options[cursor].value)[0].value);
+            setToggleOptions(false)
+            // setCursor(0);
+
+        }
+    }
+
+
     const ref = useRef<HTMLDivElement>(null);
 
     useHandleClickOutside(ref, () => setToggleOptions(false));
 
-    useEffect(() => {
-        setFilteredOptions(options);
-    }, [options.length]);
-
-    useEffect(() => {
-        if (fieldValue) {
-            onChange(options.filter(item => item.value === fieldValue)[0])
-        }
-    }, [fieldValue])
 
 
     if (isEditable) {
@@ -56,6 +95,7 @@ const SelectField = (props: IProps) => {
                             :
                             <>
                                 <input
+                                    onKeyDown={(e) => handleKeyDown(e)}
                                     style={style}
                                     name='input'
                                     className={
@@ -67,7 +107,7 @@ const SelectField = (props: IProps) => {
                                     autoComplete='off'
                                     onChange={(e) => {
                                         if (options.filter(item => item.label === e.target.value)[0]?.label) {
-                                            setFieldValue(options.filter(item => item.label === e.target.value)[0]?.value)
+                                            setFieldValue(options.filter(item => item.label === e.target.value)[0]?.value);
                                         } else {
                                             setFieldValue(e.target.value);
                                         }
@@ -98,15 +138,16 @@ const SelectField = (props: IProps) => {
                         toggleOptions && !isDisabled &&
                         <div ref={ref} className={`mainOptionDiv fromTop`} >
                             {
-                                filteredOptions.map((option) => (
+                                filteredOptions.map((option, index) => (
                                     <button
                                         key={option.value}
                                         type='button'
                                         onClick={() => {
                                             setToggleOptions(false);
                                             setFieldValue(option.value);
+                                            setCursor(index)
                                         }}
-                                        className={`buttonClass ${btnClassName}`}>
+                                        className={`buttonClass ${cursor === index && 'cursored'} ${btnClassName}`}>
                                         {option.label}
                                     </button>
                                 ))

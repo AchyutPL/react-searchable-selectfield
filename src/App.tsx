@@ -6,7 +6,6 @@ function App() {
 
     const onChange = (data: { label: string, value: string }) => {
         // setSelecteData(data);
-        console.log('data is', data);
 
     }
     const options = [
