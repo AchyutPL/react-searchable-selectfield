@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useRef, useState } from 'react';
 import useHandleClickOutside from '../hooks/useHandleClickOutSide';
 import '../index.css';
@@ -15,9 +16,9 @@ const SelectField = (props: IProps) => {
     useEffect(() => {
         if (defaultValue) {
             const defaultValueID = options.filter(idD => idD.value === defaultValue)[0]?.value;
-            setFieldValue && setFieldValue(defaultValueID);
+            setFieldValue(defaultValueID);
         }
-    }, [defaultValue, options]);
+    }, []);
 
     const ref = useRef<HTMLDivElement>(null);
 
@@ -25,13 +26,13 @@ const SelectField = (props: IProps) => {
 
     useEffect(() => {
         setFilteredOptions(options);
-    }, [options, options.length]);
+    }, [options.length]);
 
     useEffect(() => {
         if (fieldValue) {
-            onChange(options.filter(item => item.label === fieldValue)[0])
+            onChange(options.filter(item => item.value === fieldValue)[0])
         }
-    }, [fieldValue, onChange, options])
+    }, [fieldValue])
 
 
     if (isEditable) {

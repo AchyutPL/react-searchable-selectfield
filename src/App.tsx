@@ -5,8 +5,15 @@ function App() {
     const [selecteData, setSelecteData] = useState({});
 
     const onChange = (data: { label: string, value: string }) => {
-        setSelecteData(data);
+        // setSelecteData(data);
+        console.log('data is', data);
+
     }
+    const options = [
+        { value: 'chocolate', label: 'Chocolate' },
+        { value: 'strawberry', label: 'Strawberry' },
+        { value: 'vanilla', label: 'Vanilla' },
+    ];
     console.log(selecteData);
 
     return (
@@ -14,20 +21,7 @@ function App() {
             labelName='Foods'
             name='example'
             onChange={onChange}
-            options={[
-                {
-                    label: 'test',
-                    value: 'test'
-                },
-                {
-                    label: 'man',
-                    value: 'man'
-                },
-                {
-                    label: 'ran',
-                    value: 'ran'
-                },
-            ]}
+            options={options}
         />
     )
 }

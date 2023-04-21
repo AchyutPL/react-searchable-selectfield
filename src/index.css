@@ -79,7 +79,7 @@
 
 .mainOptionDiv {
     margin-top: 2px;
-
+    background-color: white;
     overflow-y: auto;
     position: absolute;
     z-index: 10;
@@ -129,4 +129,31 @@
 
 .loading-div {
     padding: 10px;
+}
+
+[data-titleinfo] {
+    position: relative;
+    z-index: 9999 !important;
+}
+
+[data-titleinfo]:after {
+    content: attr(data-titleinfo);
+    position: absolute;
+    color: white;
+    background-color: black;
+    cursor: pointer;
+    padding: 8px;
+    left: 50%;
+    border-radius: 4px;
+    /* bottom: 100%; */
+    /* put it on the top */
+    /* background-color: black; */
+    width: max-content;
+    display: none;
+    -webkit-transition: opacity 0.1s ease-in-out;
+    /* 👈 Change the time to meet your requirements. */
+}
+
+[data-titleinfo]:hover:after {
+    display: block;
 }
