@@ -2,30 +2,33 @@ import React, { useState } from 'react';
 import SelectField from './components/Selectfield';
 
 function App() {
-    const [val, setVal] = useState('');
+    const [selecteData, setSelecteData] = useState({});
+
+    const onChange = (data: { label: string, value: string }) => {
+        setSelecteData(data);
+    }
+    console.log(selecteData);
 
     return (
-
-
-        <SelectField labelName='Foods' name='haha' fieldValue={val} options={[
-            {
-                name: 'test',
-                value: 'test'
-            },
-            {
-                name: 'man',
-                value: 'man'
-            },
-            {
-                name: 'ran',
-                value: 'ran'
-            },
-        ]}
-            setFieldValue={setVal}
+        <SelectField
+            labelName='Foods'
+            name='example'
+            onChange={onChange}
+            options={[
+                {
+                    label: 'test',
+                    value: 'test'
+                },
+                {
+                    label: 'man',
+                    value: 'man'
+                },
+                {
+                    label: 'ran',
+                    value: 'ran'
+                },
+            ]}
         />
-
-
-
     )
 }
 

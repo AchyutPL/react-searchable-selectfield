@@ -1,52 +1,38 @@
 import React, { useEffect, useRef, useState } from 'react';
 import useHandleClickOutside from '../hooks/useHandleClickOutSide';
 import '../index.css';
-// import CustomError from './CustomError';
-// import DownArrow from '@heroicons/react/24/outline/ChevronDownIcon';
-// import { Oval } from 'react-loader-spinner';
-interface Props {
-    className?: string;
-    btnClassName?: string;
-    labelName?: string;
-    hoverInfo?: string;
-    name: string;
-    setFieldValue: React.Dispatch<React.SetStateAction<string>>;
-    options: { name: string, value: string }[];
-    placeholder?: string
-    fieldValue: string;
-    isEditable?: boolean
-    pending?: boolean;
-    defaultValue?: string
-    isTableMode?: boolean
-    isDisabled?: boolean
+import IProps from '../types';
 
-    fallBackPath?: string
-    children?: React.ReactElement
-    handleRouteClick?: () => void
-    parentClassName?: string
-    notFoundText?: string
-    style?: React.CSSProperties
-}
-const SelectField = (props: Props) => {
+
+const SelectField = (props: IProps) => {
     const { hoverInfo, className, isTableMode = false, btnClassName, pending = false, name, defaultValue, parentClassName, fallBackPath, style,
-        fieldValue, setFieldValue, isDisabled, isEditable, placeholder, labelName, options = [], children, handleRouteClick, notFoundText = 'No Options are available' } = props;
+        onChange, isDisabled, isEditable, placeholder, labelName, options = [], children, handleRouteClick, notFoundText = 'No Options are available' } = props;
 
-    const [filteredOptions, setFilteredOptions] = useState<Props['options']>(options);
+    const [filteredOptions, setFilteredOptions] = useState<IProps['options']>(options);
     const [toggleOptions, setToggleOptions] = useState(false);
+    const [fieldValue, setFieldValue] = useState('')
 
     useEffect(() => {
         if (defaultValue) {
             const defaultValueID = options.filter(idD => idD.value === defaultValue)[0]?.value;
-            setFieldValue(defaultValueID);
+            setFieldValue && setFieldValue(defaultValueID);
         }
-    }, []);
+    }, [defaultValue, options]);
+
     const ref = useRef<HTMLDivElement>(null);
 
     useHandleClickOutside(ref, () => setToggleOptions(false));
 
     useEffect(() => {
         setFilteredOptions(options);
-    }, [options.length]);
+    }, [options, options.length]);
+
+    useEffect(() => {
+        if (fieldValue) {
+            onChange(options.filter(item => item.label === fieldValue)[0])
+        }
+    }, [fieldValue, onChange, options])
+
 
     if (isEditable) {
         return null;
@@ -67,30 +53,44 @@ const SelectField = (props: Props) => {
                         pending ?
                             <p className='loading-div'>Loading...</p>
                             :
-                            <input
-                                style={style}
-                                name='input'
-                                className={
-                                    `inputClass ${isDisabled && 'disabledInput'} ${isTableMode && 'tableMargin'} ${className}`}
-                                value={options.filter(item => item.value === fieldValue)[0]?.name || fieldValue}
-                                placeholder={placeholder || 'Select'}
-                                disabled={isDisabled}
-                                onClick={() => setToggleOptions(true)}
-                                autoComplete='off'
-                                onChange={(e) => {
-                                    if (options.filter(item => item.name === e.target.value)[0]?.name) {
-                                        setFieldValue(options.filter(item => item.name === e.target.value)[0]?.value);
-                                    } else {
-                                        setFieldValue(e.target.value);
-                                    }
+                            <>
+                                <input
+                                    style={style}
+                                    name='input'
+                                    className={
+                                        `inputClass ${isDisabled && 'disabledInput'} ${isTableMode && 'tableMargin'} ${className}`}
+                                    value={options.filter(item => item.value === fieldValue)[0]?.label || fieldValue}
+                                    placeholder={placeholder || 'Select'}
+                                    disabled={isDisabled}
+                                    onClick={() => setToggleOptions(true)}
+                                    autoComplete='off'
+                                    onChange={(e) => {
+                                        if (options.filter(item => item.label === e.target.value)[0]?.label) {
+                                            setFieldValue(options.filter(item => item.label === e.target.value)[0]?.value)
+                                        } else {
+                                            setFieldValue(e.target.value);
+                                        }
 
-                                    if (e.target.value) {
-                                        const filterValues = options.filter(item => item.name?.toLowerCase().includes(e.target.value.toLowerCase()));
-                                        setFilteredOptions(filterValues);
-                                    } else {
-                                        setFilteredOptions(options);
-                                    }
-                                }} type="text" />
+                                        if (e.target.value) {
+                                            const filterValues = options.filter(item => item.label?.toLowerCase().includes(e.target.value.toLowerCase()));
+                                            setFilteredOptions(filterValues);
+                                        } else {
+                                            setFilteredOptions(options);
+                                        }
+                                    }} type="text" />
+                                <span role={'button'} onClick={() => setToggleOptions(!toggleOptions)}>
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                        fill="none" viewBox="0 0 24 24"
+                                        strokeWidth={1.5} stroke="currentColor"
+                                        style={{ height: 14, position: 'absolute', right: 8, top: 10 }}>
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                    </svg>
+                                </span>
+                            </>
+
                     }
 
                     {
@@ -100,20 +100,20 @@ const SelectField = (props: Props) => {
                                 filteredOptions.map((option) => (
                                     <button
                                         key={option.value}
-
-                                        type='button' onClick={() => {
+                                        type='button'
+                                        onClick={() => {
                                             setToggleOptions(false);
                                             setFieldValue(option.value);
                                         }}
                                         className={`buttonClass ${btnClassName}`}>
-                                        {option.name}
+                                        {option.label}
                                     </button>
                                 ))
                             }
                             {filteredOptions.length === 0 &&
                                 <button type='button'
-                                    className={'noOption'}>
-                                    <p>{notFoundText}</p>
+                                    className={'buttonClass'}>
+                                    <span>{notFoundText}</span>
                                     {
                                         fallBackPath && options.length === 0 &&
                                         <span role={'button'} onClick={handleRouteClick} className={`${btnClassName} linkClass`}>
