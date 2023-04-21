@@ -1,12 +1,13 @@
-import React from 'react';
-import { useState } from 'react'
-import SelectField from './components/Selectfield'
+import React, { useState } from 'react';
+import SelectField from './components/Selectfield';
 
 function App() {
     const [val, setVal] = useState('');
 
     return (
-        <SelectField name='haha' fieldValue={val} options={[
+
+
+        <SelectField labelName='Foods' name='haha' fieldValue={val} options={[
             {
                 name: 'test',
                 value: 'test'
@@ -22,6 +23,9 @@ function App() {
         ]}
             setFieldValue={setVal}
         />
+
+
+
     )
 }
 

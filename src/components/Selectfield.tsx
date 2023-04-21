@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import useHandleClickOutside from '../hooks/useHandleClickOutSide';
-import '../index.css'
+import '../index.css';
 // import CustomError from './CustomError';
 // import DownArrow from '@heroicons/react/24/outline/ChevronDownIcon';
 // import { Oval } from 'react-loader-spinner';
@@ -19,15 +19,17 @@ interface Props {
     defaultValue?: string
     isTableMode?: boolean
     isDisabled?: boolean
-    detailValues?: any[]
+
     fallBackPath?: string
     children?: React.ReactElement
     handleRouteClick?: () => void
-    mainClassName?: string
+    parentClassName?: string
+    notFoundText?: string
+    style?: React.CSSProperties
 }
 const SelectField = (props: Props) => {
-    const { hoverInfo, className, isTableMode = false, btnClassName, pending = false, name, defaultValue, mainClassName, fallBackPath, detailValues,
-        fieldValue, setFieldValue, isDisabled, isEditable, placeholder, labelName, options = [], children, handleRouteClick } = props;
+    const { hoverInfo, className, isTableMode = false, btnClassName, pending = false, name, defaultValue, parentClassName, fallBackPath, style,
+        fieldValue, setFieldValue, isDisabled, isEditable, placeholder, labelName, options = [], children, handleRouteClick, notFoundText = 'No Options are available' } = props;
 
     const [filteredOptions, setFilteredOptions] = useState<Props['options']>(options);
     const [toggleOptions, setToggleOptions] = useState(false);
@@ -50,7 +52,7 @@ const SelectField = (props: Props) => {
         return null;
     }
     return (
-        <div className={`${mainClassName} ${isTableMode ? 'isTableMode' : 'notTableMode'}`}>
+        <div className={`${parentClassName} ${isTableMode ? 'isTableMode' : 'notTableMode'}`}>
             <label className={`labelClass`} htmlFor={name} >{labelName}
                 {
                     hoverInfo &&
@@ -63,9 +65,10 @@ const SelectField = (props: Props) => {
                 <div className='mainDiv'>
                     {
                         pending ?
-                            <p>Loading...</p>
+                            <p className='loading-div'>Loading...</p>
                             :
                             <input
+                                style={style}
                                 name='input'
                                 className={
                                     `inputClass ${isDisabled && 'disabledInput'} ${isTableMode && 'tableMargin'} ${className}`}
@@ -97,7 +100,7 @@ const SelectField = (props: Props) => {
                                 filteredOptions.map((option) => (
                                     <button
                                         key={option.value}
-                                        disabled={detailValues?.map(item => item.itemId).includes(option.value)}
+
                                         type='button' onClick={() => {
                                             setToggleOptions(false);
                                             setFieldValue(option.value);
@@ -110,7 +113,7 @@ const SelectField = (props: Props) => {
                             {filteredOptions.length === 0 &&
                                 <button type='button'
                                     className={'noOption'}>
-                                    <p>No Options is Avialable</p>
+                                    <p>{notFoundText}</p>
                                     {
                                         fallBackPath && options.length === 0 &&
                                         <span role={'button'} onClick={handleRouteClick} className={`${btnClassName} linkClass`}>
